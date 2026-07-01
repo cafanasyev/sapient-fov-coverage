@@ -1,0 +1,37 @@
+{
+  "system": "SYSTEM_OK",
+  "info": "INFO_NEW",
+  "mode": "Default",
+  "node_location": {
+    "x": 33.688839,
+    "y": 47.888777,
+    "z": 4.0,
+    "x_error": 3.0E-4,
+    "y_error": 0.005,
+    "z_error": 5.0E-5,
+    "coordinate_system": "LOCATION_COORDINATE_SYSTEM_LAT_LNG_DEG_M",
+    "datum": "LOCATION_DATUM_WGS84_E"
+  },
+  "field_of_view": {
+    "range_bearing": {
+      "elevation": 10,
+      "azimuth": 69,
+      "range": 30000,
+      "horizontal_extent": 30,
+      "vertical_extent": 30,
+      "coordinate_system": "RANGE_BEARING_COORDINATE_SYSTEM_DEGREES_M",
+      "datum": "RANGE_BEARING_DATUM_TRUE"
+    }
+  },
+  "coverage": {
+    "range_bearing": {
+      "elevation": 0,
+      "azimuth": 0,
+      "range": 30000,
+      "horizontal_extent": 360,
+      "vertical_extent": 190,
+      "coordinate_system": "RANGE_BEARING_COORDINATE_SYSTEM_DEGREES_M",
+      "datum": "RANGE_BEARING_DATUM_TRUE"
+    }
+  }
+}

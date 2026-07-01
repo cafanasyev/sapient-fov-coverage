@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pickup-mounted rotary antenna — status report</title>
+<link rel="stylesheet" href="styles.css">
+<script src="app.js" defer></script>
+<script src="jsonview.js" defer></script>
+<script>
+  // mirror the live state into the docked status_report.json panel (read-only)
+  window.__afterRender = (s, v) => window.__jsonview.update(document.getElementById('jsonPanel'), s, v);
+</script>
+</head>
+<body class="has-json">
+<div class="page">
+
+  <!-- header -->
+  <div class="wrap">
+    <div class="eyebrow">SAPIENT&nbsp;·&nbsp;bsi_flex_335_v2_0&nbsp;·&nbsp;status_report</div>
+    <h1 class="title">Pickup‑mounted rotary antenna</h1>
+    <p class="lede">How <span class="mono c-amber">field_of_view</span> (the area the antenna radiates right now) sits inside <span class="mono c-slate">coverage</span> (everywhere the rotary + tilt mechanism can point).</p>
+
+    <div class="legend">
+      <div class="legend-item"><span class="swatch swatch--fov"></span><span><span class="mono">field_of_view</span> — current radiation</span></div>
+      <div class="legend-item"><span class="swatch swatch--cov"></span><span><span class="mono">coverage</span> — reachable envelope</span></div>
+    </div>
+  </div>
+
+  <!-- diagram panels -->
+  <div class="row">
+
+    <!-- PLAN -->
+    <div class="card panel">
+      <div class="head"><span class="head-tag">AZIMUTH / TOP‑DOWN</span></div>
+      <svg class="diagram" viewBox="0 0 480 480">
+        <!-- range rings + beam + boresight + azimuth arc (all scale with range) -->
+        <g data-svg="planDynamic"></g>
+        <!-- truck (top-down) -->
+        <g stroke="#2B3038" stroke-width="1.2">
+          <rect x="230" y="216" width="20" height="48" rx="2" fill="#EDE9E0"></rect>
+          <rect x="230" y="216" width="20" height="15" fill="#D7D1C2"></rect>
+          <circle cx="240" cy="240" r="3.4" fill="#C8761C" stroke="#C8761C"></circle>
+        </g>
+        <!-- north -->
+        <line x1="240" y1="52" x2="240" y2="40" stroke="#2B3038" stroke-width="1.5"></line>
+        <path d="M236,44 L240,35 L244,44 Z" fill="#2B3038"></path>
+        <text x="240" y="30" font-size="12" fill="#2B3038" text-anchor="middle" font-weight="500">N</text>
+      </svg>
+      <div class="caption">azimuth <span data-text="azDeg"></span> &nbsp;·&nbsp; fov H <span data-text="fovHDeg"></span> &nbsp;·&nbsp; range <span data-text="rangeM"></span></div>
+    </div>
+
+    <!-- ELEVATION -->
+    <div class="card panel">
+      <div class="head"><span class="head-tag">TILT / SIDE</span></div>
+      <svg class="diagram" viewBox="0 0 480 480">
+        <!-- dynamic coverage envelope + limits + beam -->
+        <g data-svg="elevDynamic"></g>
+        <!-- ground -->
+        <line x1="24" y1="310" x2="456" y2="310" stroke="#2B3038" stroke-width="1.5"></line>
+        <g stroke="#C6BFAF" stroke-width="1">
+          <line x1="130" y1="310" x2="120" y2="322"></line><line x1="162" y1="310" x2="152" y2="322"></line>
+          <line x1="194" y1="310" x2="184" y2="322"></line><line x1="226" y1="310" x2="216" y2="322"></line>
+          <line x1="258" y1="310" x2="248" y2="322"></line><line x1="290" y1="310" x2="280" y2="322"></line>
+          <line x1="322" y1="310" x2="312" y2="322"></line><line x1="354" y1="310" x2="344" y2="322"></line>
+          <line x1="386" y1="310" x2="376" y2="322"></line><line x1="418" y1="310" x2="408" y2="322"></line>
+        </g>
+        <!-- truck (side) -->
+        <g stroke="#2B3038" stroke-width="1.2" fill="#EDE9E0">
+          <line x1="240" y1="281" x2="240" y2="240" stroke-width="2"></line>
+          <rect x="185" y="281" width="112" height="18"></rect>
+          <rect x="270" y="267" width="27" height="16" fill="#D7D1C2"></rect>
+          <circle cx="210" cy="301" r="10.5" fill="#2B3038"></circle>
+          <circle cx="278" cy="301" r="10.5" fill="#2B3038"></circle>
+          <circle cx="240" cy="240" r="3.6" fill="#C8761C" stroke="#C8761C"></circle>
+        </g>
+      </svg>
+      <div class="caption">elevation <span data-text="elDeg"></span> &nbsp;·&nbsp; fov V <span data-text="fovVDeg"></span> &nbsp;·&nbsp; tilt ±<span data-text="tiltDeg"></span></div>
+    </div>
+  </div>
+
+  <!-- controls -->
+  <div class="wrap card controls">
+    <div class="head head--lg"><span class="head-tag head-tag--tight">DRAG TO RECONFIGURE THE ANTENNA STATE</span></div>
+    <div class="controls-cols">
+
+      <div class="controls-col">
+        <div class="group-label group-label--fov">FIELD_OF_VIEW</div>
+
+        <label class="field">
+          <div class="field-row"><span class="field-name">azimuth</span><span class="field-val" data-text="azDeg"></span></div>
+          <input class="slider slider--amber" type="range" step="1" data-min="panNeg" data-max="panPos" data-value="azOffset" data-on="setAzimuth">
+        </label>
+
+        <label class="field">
+          <div class="field-row"><span class="field-name">elevation</span><span class="field-val" data-text="elDeg"></span></div>
+          <input class="slider slider--amber" type="range" step="1" data-min="elMin" data-max="elMax" data-value="elevation" data-on="setElevation">
+        </label>
+
+        <label class="field">
+          <div class="field-row"><span class="field-name">horizontal_extent</span><span class="field-val" data-text="fovHDeg"></span></div>
+          <input class="slider slider--amber" type="range" min="2" max="120" step="1" data-value="fovH" data-on="setFovH">
+        </label>
+
+        <label class="field">
+          <div class="field-row"><span class="field-name">vertical_extent</span><span class="field-val" data-text="fovVDeg"></span></div>
+          <input class="slider slider--amber" type="range" min="2" max="120" step="1" data-value="fovV" data-on="setFovV">
+        </label>
+
+        <label class="field field--tight">
+          <div class="field-row"><span class="field-name">range</span><span class="field-val" data-text="rangeM"></span></div>
+          <input class="slider slider--amber" type="range" min="1000" step="1000" data-max="fovRangeMaxM" data-value="rangeMNum" data-on="setRangeKm">
+        </label>
+      </div>
+
+      <div class="controls-col">
+        <div class="group-label group-label--cov">COVERAGE</div>
+
+        <label class="field">
+          <div class="field-row"><span class="field-name">azimuth</span><span class="field-val" data-text="covAzDeg"></span></div>
+          <input class="slider slider--slate" type="range" min="0" max="359" step="1" data-value="coverageAzimuth" data-on="setCoverageAzimuth">
+        </label>
+
+        <label class="field">
+          <div class="field-row"><span class="field-name">elevation</span><span class="field-val na">not used</span></div>
+          <input class="slider slider--slate" type="range" min="-80" max="80" step="1" value="0" disabled>
+        </label>
+
+        <label class="field">
+          <div class="field-row"><span><span class="field-name">horizontal_extent</span><span class="formula-inline" data-text="hExtFormula"></span></span><span class="field-val" data-text="hExtDeg"></span></div>
+          <input class="slider slider--slate" type="range" min="0" max="360" step="1" data-value="hExtNum" disabled>
+        </label>
+
+        <label class="field">
+          <div class="field-row"><span><span class="field-name">vertical_extent</span><span class="formula-inline">= 2 × tilt <span data-text="tiltDeg"></span> + fov V <span data-text="fovVDeg"></span></span></span><span class="field-val" data-text="vExtDeg"></span></div>
+          <input class="slider slider--slate" type="range" min="0" max="360" step="1" data-value="vExtNum" disabled>
+        </label>
+
+        <label class="field field--tight">
+          <div class="field-row"><span class="field-name">range</span><span class="field-val" data-text="covRangeM"></span></div>
+          <input class="slider slider--slate" type="range" min="1000" max="40000" step="1000" data-value="covRangeMNum" data-on="setCoverageRange">
+        </label>
+      </div>
+    </div>
+
+    <div class="limits">
+      <div class="group-label group-label--cov">ROTATION MECHANISM LIMITS</div>
+      <div class="controls-cols">
+        <div class="controls-col">
+          <label class="field field--tight">
+            <div class="field-row"><span class="field-name">pan limit&nbsp;(±)</span><span class="field-val" data-text="panDeg"></span></div>
+            <input class="slider slider--slate" type="range" min="0" max="180" step="1" data-value="panLimit" data-on="setPanLimit">
+          </label>
+        </div>
+        <div class="controls-col">
+          <label class="field field--tight">
+            <div class="field-row"><span class="field-name">tilt limit&nbsp;(±)</span><span class="field-val" data-text="tiltDeg"></span></div>
+            <input class="slider slider--slate" type="range" min="10" max="90" step="1" data-value="tiltLimit" data-on="setTiltLimit">
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<aside id="jvPanel">
+  <div class="jv-head">status_report.json · live · read-only</div>
+  <pre id="jsonPanel" class="jv"></pre>
+</aside>
+</body>
+</html>
