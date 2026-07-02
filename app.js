@@ -1,4 +1,4 @@
-/* Pickup-mounted rotary antenna — field_of_view vs coverage.
+/* Mast-mounted rotary antenna — field_of_view vs coverage.
    Vanilla port of the original React/dc-runtime component: same math,
    same SVG output, same slider behaviour. No dependencies. */
 (() => {

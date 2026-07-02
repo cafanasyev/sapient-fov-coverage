@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pickup-mounted rotary antenna — status report</title>
+<title>Mast-mounted rotary antenna — status report</title>
 <link rel="stylesheet" href="styles.css">
 <script src="app.js" defer></script>
 <script src="jsonview.js" defer></script>
@@ -18,7 +18,7 @@
   <!-- header -->
   <div class="wrap">
     <div class="eyebrow">SAPIENT&nbsp;·&nbsp;bsi_flex_335_v2_0&nbsp;·&nbsp;status_report</div>
-    <h1 class="title">Pickup‑mounted rotary antenna</h1>
+    <h1 class="title">Mast‑mounted rotary antenna</h1>
     <p class="lede">How <span class="mono c-amber">field_of_view</span> (the area the antenna radiates right now) sits inside <span class="mono c-slate">coverage</span> (everywhere the rotary + tilt mechanism can point).</p>
 
     <div class="legend">
@@ -36,10 +36,9 @@
       <svg class="diagram" viewBox="0 0 480 480">
         <!-- range rings + beam + boresight + azimuth arc (all scale with range) -->
         <g data-svg="planDynamic"></g>
-        <!-- truck (top-down) -->
+        <!-- mast (top-down) -->
         <g stroke="#2B3038" stroke-width="1.2">
-          <rect x="230" y="216" width="20" height="48" rx="2" fill="#EDE9E0"></rect>
-          <rect x="230" y="216" width="20" height="15" fill="#D7D1C2"></rect>
+          <circle cx="240" cy="240" r="6" fill="#EDE9E0"></circle>
           <circle cx="240" cy="240" r="3.4" fill="#C8761C" stroke="#C8761C"></circle>
         </g>
         <!-- north -->
@@ -65,13 +64,10 @@
           <line x1="322" y1="310" x2="312" y2="322"></line><line x1="354" y1="310" x2="344" y2="322"></line>
           <line x1="386" y1="310" x2="376" y2="322"></line><line x1="418" y1="310" x2="408" y2="322"></line>
         </g>
-        <!-- truck (side) -->
+        <!-- mast (side) -->
         <g stroke="#2B3038" stroke-width="1.2" fill="#EDE9E0">
-          <line x1="240" y1="281" x2="240" y2="240" stroke-width="2"></line>
-          <rect x="185" y="281" width="112" height="18"></rect>
-          <rect x="270" y="267" width="27" height="16" fill="#D7D1C2"></rect>
-          <circle cx="210" cy="301" r="10.5" fill="#2B3038"></circle>
-          <circle cx="278" cy="301" r="10.5" fill="#2B3038"></circle>
+          <line x1="240" y1="310" x2="240" y2="240" stroke-width="2"></line>
+          <rect x="228" y="305" width="24" height="6" rx="1"></rect>
           <circle cx="240" cy="240" r="3.6" fill="#C8761C" stroke="#C8761C"></circle>
         </g>
       </svg>
