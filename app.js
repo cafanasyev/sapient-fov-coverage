@@ -61,7 +61,7 @@
 
     const amber = '#C8761C', amberFill = 'rgba(224,138,43,0.22)',
           slate = '#9AA3B0', slateFill = 'rgba(140,150,165,0.13)',
-          ink = '#5B6472', mono = "'IBM Plex Mono', monospace";
+          ink = '#5B6472', mono = 'ui-monospace, Menlo, Consolas, monospace';
 
     const maxKm = 40;
     const scaleFov = Math.sqrt(rangeKm / maxKm);
