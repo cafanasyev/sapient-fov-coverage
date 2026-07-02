@@ -21,6 +21,7 @@
     setFovV: 'field_of_view.range_bearing.vertical_extent',
     setRangeKm: 'field_of_view.range_bearing.range',
     setCoverageAzimuth: 'coverage.range_bearing.azimuth',
+    setCoverageElevation: 'coverage.range_bearing.elevation',
     setCoverageRange: 'coverage.range_bearing.range',
     setPanLimit: 'pan limit — not in report',
     setTiltLimit: 'tilt limit — not in report'
@@ -44,7 +45,7 @@
         datum: 'RANGE_BEARING_DATUM_TRUE'
       }},
       coverage: { range_bearing: {
-        elevation: 0,
+        elevation: s.coverageElevation,
         azimuth: s.coverageAzimuth,
         range: Math.round(s.coverageRange * 1000),
         horizontal_extent: v.hExtNum,
