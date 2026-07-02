@@ -71,7 +71,9 @@
 
     const hExtRaw = 2 * pan + fovH;
     const fullRot = hExtRaw >= 360;
-    const hExt = fullRot ? 360 : hExtRaw;
+    // coverage.horizontal_extent is the reported swath and may exceed 360°
+    // (panning ±pan overlaps itself); keep the raw value, only the drawing wraps.
+    const hExt = hExtRaw;
     const covHalf = fullRot ? 180 : (pan + fovH / 2);
 
     const refRings = [
@@ -86,6 +88,10 @@
       const cp1 = pP(covAz - covHalf, RPcov), cp2 = pP(covAz + covHalf, RPcov);
       const largeC = (2 * covHalf) > 180 ? 1 : 0;
       coverageArea = el('path', { key: 'cov-area', d: `M${cx},${cy} L${f(cp1[0])},${f(cp1[1])} A${RPcov},${RPcov} 0 ${largeC} 1 ${f(cp2[0])},${f(cp2[1])} Z`, fill: slateFill, stroke: slate, strokeWidth: 1.2, strokeDasharray: '6 4' });
+    }
+    // pan limits are only meaningful when the head can't rotate fully (pan < 180).
+    // Draw them even when the beam coverage wraps to a full circle (fullRot).
+    if (pan < 180) {
       const cl = pP(covAz, RPcov * 0.9);
       const pu = pP(covAz + pan, RPcov), pd = pP(covAz - pan, RPcov);
       covExtras = [
@@ -160,7 +166,7 @@
       covRangeM: (cov * 1000).toLocaleString() + ' m',
       panDeg: pan + '°', covAzDeg: covAz + '°',
       hExtDeg: hExt + '°',
-      hExtFormula: fullRot ? '= full 360° rotation' : ('= 2 × pan ' + pan + '° + fov H ' + fovH + '°'),
+      hExtFormula: '= 2 × pan ' + pan + '° + fov H ' + fovH + '°',
       // slider bounds + values
       panNeg: -pan, panPos: pan, azOffset: signed(az - covAz),
       elMin: -tilt, elMax: tilt, elevation: elv,
