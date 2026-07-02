@@ -46,7 +46,12 @@
     setCoverageRange: (v) => { const km = v / 1000; state.coverageRange = km; state.rangeKm = Math.min(km, state.rangeKm); },
     setPanLimit: (v) => { state.panLimit = v; state.azimuth = clampAz(state.azimuth, state.coverageAzimuth, v); },
     setCoverageAzimuth: (v) => { state.coverageAzimuth = v; state.azimuth = clampAz(state.azimuth, v, state.panLimit); },
-    setCoverageElevation: (v) => { state.coverageElevation = v; state.elevation = clampEl(state.elevation, v, state.tiltLimit); }
+    setCoverageElevation: (v) => { state.coverageElevation = v; state.elevation = clampEl(state.elevation, v, state.tiltLimit); },
+    // coverage extents are driven by the mechanism: extent = 2 × limit + fov, so
+    // dragging an extent solves back for the pan/tilt limit (rounded, clamped to
+    // the mechanism's range) and re-applies the beam clamp.
+    setHExt: (v) => { state.panLimit = Math.max(0, Math.min(180, Math.round((v - state.fovH) / 2))); state.azimuth = clampAz(state.azimuth, state.coverageAzimuth, state.panLimit); },
+    setVExt: (v) => { state.tiltLimit = Math.max(10, Math.min(90, Math.round((v - state.fovV) / 2))); state.elevation = clampEl(state.elevation, state.coverageElevation, state.tiltLimit); }
   };
 
   function compute() {
