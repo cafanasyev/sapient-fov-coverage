@@ -122,8 +122,8 @@
         </label>
 
         <label class="field">
-          <div class="field-row"><span class="field-name">elevation</span><span class="field-val na">not used</span></div>
-          <input class="slider slider--slate" type="range" min="-80" max="80" step="1" value="0" disabled>
+          <div class="field-row"><span class="field-name">elevation</span><span class="field-val" data-text="covElDeg"></span></div>
+          <input class="slider slider--slate" type="range" min="-90" max="90" step="1" data-value="coverageElevation" data-on="setCoverageElevation">
         </label>
 
         <label class="field">
@@ -132,7 +132,7 @@
         </label>
 
         <label class="field">
-          <div class="field-row"><span><span class="field-name">vertical_extent</span><span class="formula-inline">= 2 × tilt <span data-text="tiltDeg"></span> + fov V <span data-text="fovVDeg"></span></span></span><span class="field-val" data-text="vExtDeg"></span></div>
+          <div class="field-row"><span><span class="field-name">vertical_extent</span><span class="formula-inline" data-text="vExtFormula"></span></span><span class="field-val" data-text="vExtDeg"></span></div>
           <input class="slider slider--slate" type="range" min="0" max="360" step="1" data-value="vExtNum" disabled>
         </label>
 
