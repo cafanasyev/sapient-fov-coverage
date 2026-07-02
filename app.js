@@ -51,7 +51,7 @@
     // dragging an extent solves back for the pan/tilt limit (rounded, clamped to
     // the mechanism's range) and re-applies the beam clamp.
     setHExt: (v) => { state.panLimit = Math.max(0, Math.min(180, Math.round((v - state.fovH) / 2))); state.azimuth = clampAz(state.azimuth, state.coverageAzimuth, state.panLimit); },
-    setVExt: (v) => { state.tiltLimit = Math.max(10, Math.min(90, Math.round((v - state.fovV) / 2))); state.elevation = clampEl(state.elevation, state.coverageElevation, state.tiltLimit); }
+    setVExt: (v) => { state.tiltLimit = Math.max(0, Math.min(90, Math.round((v - state.fovV) / 2))); state.elevation = clampEl(state.elevation, state.coverageElevation, state.tiltLimit); }
   };
 
   function compute() {
