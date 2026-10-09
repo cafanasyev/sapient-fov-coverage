@@ -47,11 +47,10 @@
     setPanLimit: (v) => { state.panLimit = v; state.azimuth = clampAz(state.azimuth, state.coverageAzimuth, v); },
     setCoverageAzimuth: (v) => { state.coverageAzimuth = v; state.azimuth = clampAz(state.azimuth, v, state.panLimit); },
     setCoverageElevation: (v) => { state.coverageElevation = v; state.elevation = clampEl(state.elevation, v, state.tiltLimit); },
-    // coverage extents are driven by the mechanism: extent = 2 × limit + fov, so
-    // dragging an extent solves back for the pan/tilt limit (rounded, clamped to
-    // the mechanism's range) and re-applies the beam clamp.
-    setHExt: (v) => { state.panLimit = Math.max(0, Math.min(180, Math.round((v - state.fovH) / 2))); state.azimuth = clampAz(state.azimuth, state.coverageAzimuth, state.panLimit); },
-    setVExt: (v) => { state.tiltLimit = Math.max(0, Math.min(90, Math.round((v - state.fovV) / 2))); state.elevation = clampEl(state.elevation, state.coverageElevation, state.tiltLimit); }
+    // Coverage is the area reachable by the mechanism; field_of_view is not
+    // included in its extents.
+    setHExt: (v) => { state.panLimit = Math.max(0, Math.min(180, v / 2)); state.azimuth = clampAz(state.azimuth, state.coverageAzimuth, state.panLimit); },
+    setVExt: (v) => { state.tiltLimit = Math.max(0, Math.min(90, v / 2)); state.elevation = clampEl(state.elevation, state.coverageElevation, state.tiltLimit); }
   };
 
   function compute() {
@@ -80,12 +79,9 @@
     const azTxt = [cx + (arcR + 15) * Math.sin(az / 2 * D), cy - (arcR + 15) * Math.cos(az / 2 * D)];
     const fovTxt = [cx + RPfov * 0.6 * Math.sin(az * D), cy - RPfov * 0.6 * Math.cos(az * D)];
 
-    const hExtRaw = 2 * pan + fovH;
-    const fullRot = hExtRaw >= 360;
-    // coverage.horizontal_extent is the reported swath and may exceed 360°
-    // (panning ±pan overlaps itself); keep the raw value, only the drawing wraps.
-    const hExt = hExtRaw;
-    const covHalf = fullRot ? 180 : (pan + fovH / 2);
+    const hExt = Math.min(360, 2 * pan);
+    const fullRot = hExt >= 360;
+    const covHalf = fullRot ? 180 : pan;
 
     const refRings = [
       el('circle', { key: 'rr-mid', cx, cy, r: f(RPcov * 2 / 3), fill: 'none', stroke: '#E4E0D6', strokeWidth: 1 }),
@@ -100,15 +96,12 @@
       const largeC = (2 * covHalf) > 180 ? 1 : 0;
       coverageArea = el('path', { key: 'cov-area', d: `M${cx},${cy} L${f(cp1[0])},${f(cp1[1])} A${RPcov},${RPcov} 0 ${largeC} 1 ${f(cp2[0])},${f(cp2[1])} Z`, fill: slateFill, stroke: slate, strokeWidth: 1.2, strokeDasharray: '6 4' });
     }
-    // pan limits are only meaningful when the head can't rotate fully (pan < 180).
-    // Draw them even when the beam coverage wraps to a full circle (fullRot).
+    // For partial coverage the sector outline is also the pan-limit boundary;
+    // only draw the centre ray here to avoid double-stroking the perimeter.
     if (pan < 180) {
       const cl = pP(covAz, RPcov * 0.9);
-      const pu = pP(covAz + pan, RPcov), pd = pP(covAz - pan, RPcov);
       covExtras = [
         el('line', { key: 'cen', x1: cx, y1: cy, x2: f(cl[0]), y2: f(cl[1]), stroke: slate, strokeWidth: 1, strokeDasharray: '2 4' }),
-        el('line', { key: 'pu', x1: cx, y1: cy, x2: f(pu[0]), y2: f(pu[1]), stroke: ink, strokeWidth: 1, strokeDasharray: '3 3' }),
-        el('line', { key: 'pd', x1: cx, y1: cy, x2: f(pd[0]), y2: f(pd[1]), stroke: ink, strokeWidth: 1, strokeDasharray: '3 3' }),
         el('text', { key: 'cenL', x: f(cl[0]), y: f(cl[1] - 5), fontFamily: mono, fontSize: 9.5, fill: '#6B7280', textAnchor: 'middle' }, 'home ' + covAz + '°')
       ];
     }
@@ -133,7 +126,7 @@
     const px = 240, py = 240, REfov = 200 * scaleFov, REcov = 200 * scaleCov;
     const pE = (e, r) => [px + r * Math.cos(e * D), py - r * Math.sin(e * D)];
     // the whole tilt envelope pivots around the coverage centre elevation (covEl)
-    const edgeUp = covEl + tilt + fovV / 2, edgeDn = covEl - tilt - fovV / 2;
+    const edgeUp = covEl + tilt, edgeDn = covEl - tilt;
     const cUp = pE(edgeUp, REcov), cDn = pE(edgeDn, REcov);
     const luP = pE(covEl + tilt, REcov), ldP = pE(covEl - tilt, REcov);
     const homeE = pE(covEl, REcov * 0.9);
@@ -145,7 +138,7 @@
     const ze = [px + eArcR * Math.cos(elv * D), py - eArcR * Math.sin(elv * D)];
     const eTxt = [px + (eArcR + 16) * Math.cos(elv / 2 * D), py - (eArcR + 16) * Math.sin(elv / 2 * D)];
     const beamTxt = [px + REfov * 0.58 * Math.cos(elv * D), py - REfov * 0.58 * Math.sin(elv * D)];
-    const vExt = 2 * tilt + fovV;
+    const vExt = 2 * tilt;
     const hzEnd = px + REcov;
     const bTip = pE(elv, REfov);
     // at covEl≈0 the home ray sits on the horizon line, so its label would
@@ -158,8 +151,6 @@
 
     const elevDynamic = [
       el('path', { key: 'cov', d: `M${px},${py} L${f(cUp[0])},${f(cUp[1])} A${REcov},${REcov} 0 ${(vExt > 180) ? 1 : 0} 1 ${f(cDn[0])},${f(cDn[1])} Z`, fill: slateFill, stroke: slate, strokeWidth: 1.2, strokeDasharray: '6 4' }),
-      el('line', { key: 'lu', x1: px, y1: py, x2: f(luP[0]), y2: f(luP[1]), stroke: ink, strokeWidth: 1, strokeDasharray: '3 3' }),
-      el('line', { key: 'ld', x1: px, y1: py, x2: f(ldP[0]), y2: f(ldP[1]), stroke: ink, strokeWidth: 1, strokeDasharray: '3 3' }),
       el('text', { key: 'lut', x: f(luP[0] + 6), y: f(luP[1] - 2), fontFamily: mono, fontSize: 10, fill: ink }, '+' + tilt + '° → ' + (covEl + tilt) + '°'),
       el('text', { key: 'ldt', x: f(ldP[0] + 6), y: f(ldP[1] + 10), fontFamily: mono, fontSize: 10, fill: ink }, '−' + tilt + '° → ' + (covEl - tilt) + '°'),
       ...homeEls,
@@ -187,8 +178,8 @@
       covRangeM: (cov * 1000).toLocaleString() + ' m',
       panDeg: pan + '°', covAzDeg: covAz + '°', covElDeg: covEl + '°',
       hExtDeg: hExt + '°',
-      hExtFormula: '= 2 × pan ' + pan + '° + fov H ' + fovH + '°',
-      vExtFormula: '= 2 × tilt ' + tilt + '° + fov V ' + fovV + '° @ el ' + covEl + '°',
+      hExtFormula: '= 2 × pan ' + pan + '°',
+      vExtFormula: '= 2 × tilt ' + tilt + '°',
       // slider bounds + values
       panNeg: -pan, panPos: pan, azOffset: signed(az - covAz),
       elMin: covEl - tilt, elMax: covEl + tilt, elevation: elv,
@@ -213,8 +204,8 @@
 
   // Pull initial values from status_report.json (served alongside index.html).
   // Works over http/GitHub Pages; on file:// the browser blocks fetch, so we
-  // silently keep the code defaults. pan/tilt limits are never in the report —
-  // they stay code-driven (DEFAULTS.panLimit / DEFAULTS.tiltLimit).
+  // silently keep the code defaults. Coverage extents are mapped to symmetric
+  // pan/tilt limits for this single-envelope visualization.
   async function loadReport() {
     let j;
     try {
@@ -226,7 +217,8 @@
     const num = (x) => (typeof x === 'number' && isFinite(x)) ? x : undefined;
     const set = (k, x) => { const v = num(x); if (v !== undefined) state[k] = v; };
     const fov = j && j.field_of_view && j.field_of_view.range_bearing;
-    const cov = j && j.coverage && j.coverage.range_bearing;
+    const covReport = j && (Array.isArray(j.coverage) ? j.coverage[0] : j.coverage);
+    const cov = covReport && covReport.range_bearing;
 
     if (fov) {
       set('azimuth', fov.azimuth);
@@ -239,6 +231,8 @@
       set('coverageAzimuth', cov.azimuth);
       set('coverageElevation', cov.elevation);
       if (num(cov.range) !== undefined) state.coverageRange = cov.range / 1000;
+      if (num(cov.horizontal_extent) !== undefined) state.panLimit = Math.max(0, Math.min(180, cov.horizontal_extent / 2));
+      if (num(cov.vertical_extent) !== undefined) state.tiltLimit = Math.max(0, Math.min(90, cov.vertical_extent / 2));
     }
 
     // re-apply the model's invariants after loading external values

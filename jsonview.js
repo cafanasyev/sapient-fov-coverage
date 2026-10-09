@@ -20,15 +20,15 @@
     setFovH: 'field_of_view.range_bearing.horizontal_extent',
     setFovV: 'field_of_view.range_bearing.vertical_extent',
     setRangeKm: 'field_of_view.range_bearing.range',
-    setCoverageAzimuth: 'coverage.range_bearing.azimuth',
-    setCoverageElevation: 'coverage.range_bearing.elevation',
-    setCoverageRange: 'coverage.range_bearing.range',
+    setCoverageAzimuth: 'coverage[0].range_bearing.azimuth',
+    setCoverageElevation: 'coverage[0].range_bearing.elevation',
+    setCoverageRange: 'coverage[0].range_bearing.range',
     setPanLimit: 'pan limit — not in report',
     setTiltLimit: 'tilt limit — not in report'
   };
   const VALUE_PATHS = {
-    hExtNum: 'coverage.range_bearing.horizontal_extent',
-    vExtNum: 'coverage.range_bearing.vertical_extent'
+    hExtNum: 'coverage[0].range_bearing.horizontal_extent',
+    vExtNum: 'coverage[0].range_bearing.vertical_extent'
   };
 
   function buildReport(s, v) {
@@ -44,7 +44,7 @@
         coordinate_system: 'RANGE_BEARING_COORDINATE_SYSTEM_DEGREES_M',
         datum: 'RANGE_BEARING_DATUM_TRUE'
       }},
-      coverage: { range_bearing: {
+      coverage: [{ range_bearing: {
         elevation: s.coverageElevation,
         azimuth: s.coverageAzimuth,
         range: Math.round(s.coverageRange * 1000),
@@ -52,7 +52,7 @@
         vertical_extent: v.vExtNum,
         coordinate_system: 'RANGE_BEARING_COORDINATE_SYSTEM_DEGREES_M',
         datum: 'RANGE_BEARING_DATUM_TRUE'
-      }}
+      }}]
     };
   }
 
@@ -60,6 +60,14 @@
 
   function renderNode(node, path, indent) {
     const pad = '  '.repeat(indent);
+    if (Array.isArray(node)) {
+      let out = '[\n';
+      node.forEach((item, i) => {
+        const comma = i < node.length - 1 ? ',' : '';
+        out += pad + '  ' + renderNode(item, path + '[' + i + ']', indent + 1) + comma + '\n';
+      });
+      return out + pad + ']';
+    }
     if (node && typeof node === 'object') {
       const keys = Object.keys(node);
       let out = '{\n';
